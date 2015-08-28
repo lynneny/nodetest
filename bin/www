@@ -8,6 +8,12 @@ var app = require('../app');
 var debug = require('debug')('nodetest:server');
 var http = require('http');
 var webSocketServer = require('websocket').server;
+/**
+ * Get port from environment and store in Express.
+ */
+
+var port = normalizePort(process.env.PORT || '3000');
+app.set('port', port);
 
 
 /**
@@ -32,13 +38,6 @@ var colors = [ 'red', 'green', 'blue', 'magenta', 'purple', 'plum', 'orange' ];
 colors.sort(function(a,b) { return Math.random() > 0.5; } );
 
 /**
- * Get port from environment and store in Express.
- */
-
-var port = normalizePort(process.env.PORT || '3000');
-app.set('port', port);
-
-/**
  * Create HTTP server.
  */
 
@@ -48,9 +47,9 @@ var server = http.createServer(app);
  * Listen on provided port, on all network interfaces.
  */
 
-server.listen(port, function() {
-    console.log((new Date()) + " Server is listening on port " + port);
- });
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
 
 /**
  * WebSocket server
@@ -60,6 +59,7 @@ server.listen(port, function() {
     // an enhanced HTTP request. For more info http://tools.ietf.org/html/rfc6455#page-6
   httpServer: server
  });
+
 
 // This callback function is called every time someone
 // tries to connect to the WebSocket server
@@ -71,11 +71,11 @@ wsServer.on('request', function(request) {
     // (http://en.wikipedia.org/wiki/Same_origin_policy)
   var connection = request.accept(null, request.origin);
   // we need to know client index to remove them on 'close' event
-    var index = clients.push(connection) - 1;
+  var index = clients.push(connection) - 1;
   var userName = false;
-    var userColor = false;
+  var userColor = false;
 
-  console.log((new Date()) + ' Connection accepted.');
+  //console.log((new Date()) + ' Connection accepted.');
 
   // send back chat history
     if (history.length > 0) {
@@ -129,6 +129,7 @@ wsServer.on('request', function(request) {
         }
     });
 });
+
 
 /**
  * Normalize a port into a number, string, or false.
